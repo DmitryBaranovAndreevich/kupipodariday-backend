@@ -59,10 +59,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column({
-    type: 'int',
-    array: true,
-  })
+  @JoinColumn()
   @OneToOne(() => Wishlist, (wishlist) => wishlist.id)
   wishlists: number[];
 
