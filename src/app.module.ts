@@ -9,9 +9,8 @@ import { User } from './users/entities/user.entity';
 import { Wish } from './wishes/entities/wish.entity';
 import { Offer } from './offers/entities/offer.entity';
 import { Wishlist } from './wishlists/entities/wishlist.entity';
-import { SignupModule } from './signup/signup.module';
 import { ConfigModule } from '@nestjs/config';
-import { SigninModule } from './signin/signin.module';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
@@ -34,8 +33,7 @@ import { SigninModule } from './signin/signin.module';
     WishesModule,
     WishlistsModule,
     OffersModule,
-    SignupModule,
-    SigninModule,
+    AuthModule
   ],
   controllers: [AppController],
 })
