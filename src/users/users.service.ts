@@ -25,12 +25,20 @@ export class UsersService {
     return user;
   }
 
+  async findMany(query: string) {
+    const user = await this.usersRepository.findOne({
+      where: [{ username: query }, { email: query }],
+    });
+    if (user) return user;
+    return null;
+  }
+
   findAll() {
     return this.usersRepository.find();
   }
 
-  findOne(id: number) {
-    return this.usersRepository.findOneBy({ id });
+  async findOne(id: number) {
+    return await this.usersRepository.findOneBy({ id });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

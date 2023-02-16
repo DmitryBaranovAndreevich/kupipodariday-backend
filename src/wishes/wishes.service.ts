@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
@@ -9,10 +10,20 @@ import { Wish } from './entities/wish.entity';
 export class WishesService {
   constructor(
     @InjectRepository(Wish)
-    private wishRepository: Repository<Wish>
+    private wishRepository: Repository<Wish>,
   ) {}
-  create(createWishDto: CreateWishDto) {
-    return this.wishRepository.save(createWishDto);
+
+  create(createWishDto: CreateWishDto, user: User) {
+    const { id } = user;
+    console.log(createWishDto);
+    return this.wishRepository.save({ ...createWishDto, owner: id });
+  }
+
+  async getAllUserWishes(id: number) {
+    // console.log(id)
+    const wishes = await this.wishRepository.find({ where: { owner: id } });
+    // console.log(wishes)
+    return wishes;
   }
 
   findAll() {
@@ -20,7 +31,7 @@ export class WishesService {
   }
 
   findOne(id: number) {
-    return this.wishRepository.findOneBy({id});
+    return this.wishRepository.findOneBy({ id });
   }
 
   update(id: number, updateWishDto: UpdateWishDto) {
@@ -28,6 +39,6 @@ export class WishesService {
   }
 
   remove(id: number) {
-    return this.wishRepository.delete({id});
+    return this.wishRepository.delete({ id });
   }
 }

@@ -1,7 +1,15 @@
 import { IsDate, IsFQDN, Length } from 'class-validator';
 import { Offer } from 'src/offers/entities/offer.entity';
 import { User } from 'src/users/entities/user.entity';
-import { PrimaryGeneratedColumn, Column, OneToOne, CreateDateColumn, UpdateDateColumn, OneToMany, Entity } from 'typeorm';
+import {
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  Entity,
+} from 'typeorm';
 
 @Entity()
 export class Wish {
@@ -39,6 +47,7 @@ export class Wish {
   @Column({
     type: 'decimal',
     scale: 2,
+    default: 0,
   })
   raised: number;
 
@@ -53,10 +62,13 @@ export class Wish {
   @Column({
     type: 'int',
     array: true,
+    default: [],
   })
   @OneToMany(() => Offer, (offer) => offer.id)
   offers: number[];
 
-  @Column()
-  cpoied: number;
+  @Column({
+    default: 0,
+  })
+  copied: number;
 }
