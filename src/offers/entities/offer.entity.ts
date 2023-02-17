@@ -1,5 +1,6 @@
 import { IsDate, IsFQDN } from 'class-validator';
 import { User } from 'src/users/entities/user.entity';
+import { Wish } from 'src/wishes/entities/wish.entity';
 import { PrimaryGeneratedColumn, Column, OneToOne, CreateDateColumn, UpdateDateColumn, ManyToMany, Entity } from 'typeorm';
 
 @Entity()
@@ -17,12 +18,8 @@ export class Offer {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({
-    type: 'int',
-    array: true,
-  })
-  @ManyToMany(() => User, (user) => user.id)
-  user: User[];
+  @OneToOne(() => User, (user) => user.id)
+  user: User;
 
   @Column()
   @IsFQDN()
@@ -39,4 +36,7 @@ export class Offer {
     default: false,
   })
   hidden: boolean;
+
+  @ManyToMany(() => Wish, (wish) => wish.id)
+  wish: Wish
 }

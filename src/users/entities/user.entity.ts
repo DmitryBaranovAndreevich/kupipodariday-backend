@@ -7,10 +7,12 @@ import {
   UpdateDateColumn,
   JoinColumn,
   ManyToMany,
+  OneToMany,
 } from 'typeorm';
 import { Length, IsEmail, IsDate, IsFQDN } from 'class-validator';
 import { Wishlist } from 'src/wishlists/entities/wishlist.entity';
 import { Offer } from 'src/offers/entities/offer.entity';
+import { Wish } from 'src/wishes/entities/wish.entity';
 
 
 @Entity()
@@ -59,11 +61,15 @@ export class User {
   @Column()
   password: string;
 
+  @OneToMany(() => Wishlist, (wishlist) => wishlist.id)
   @JoinColumn()
-  @OneToOne(() => Wishlist, (wishlist) => wishlist.id)
-  wishlists: number[];
+  wishlists: Wishlist;
 
-  @ManyToMany(() => Offer)
+  @OneToOne(() => Offer, (offer) => offer.id)
   @JoinColumn()
-  country: Offer;
+  offer: Offer;
+
+  @OneToMany(() => Wish, (wish) => wish.id)
+  @JoinColumn()
+  wish: Wish;
 }

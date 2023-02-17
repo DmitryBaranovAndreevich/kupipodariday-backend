@@ -8,13 +8,12 @@ import {
   Delete,
   Req,
   UseGuards,
-  HttpException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { UsersService } from './users.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { User } from './entities/user.entity';
-import { hash, compare } from 'bcryptjs';
+import { hash } from 'bcryptjs';
 import { UpdateUser } from 'src/interface/user';
 import { WishesService } from 'src/wishes/wishes.service';
 
@@ -22,18 +21,15 @@ import { WishesService } from 'src/wishes/wishes.service';
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly wishesService: WishesService) {}
-
-  // @Post()
-  // create(@Body() createUserDto: CreateUserDto) {
-  //   return this.usersService.create(createUserDto);
-  // }
+    private readonly wishesService: WishesService,
+  ) {}
 
   @UseGuards(JwtGuard)
   @Post('/find')
   async findUser(@Body() findUserDto: { query: string }) {
-    // console.log(findUserDto);
-    const user = await this.usersService.findMany(findUserDto.query);
+    const user = await this.usersService.findOne({
+      where: [{ username: findUserDto.query }, { email: findUserDto.query }],
+    });
     if (user) return [user];
     return [];
   }
@@ -42,7 +38,6 @@ export class UsersController {
   @Get('/me')
   findMe(@Req() req: Request) {
     const user = req.user;
-    // console.log(user)
     const { password, ...result } = user as User;
     return result;
   }
@@ -64,21 +59,21 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Get('/me/wishes')
-  findMeWishes(@Req() req: Request) {
-    const {id} = req.user as User
-    return this.wishesService.getAllUserWishes(id);
+  async findMeWishes(@Req() req: Request) {
+    const user = req.user as User;
+    return await this.wishesService.getAllUserWishes(user);
   }
 
   @UseGuards(JwtGuard)
   @Get('/users/:username')
-  findOtherUser(@Param('username') username: string) {
-    return this.usersService.findByUsername(username);
+  async findOtherUser(@Param('username') username: string) {
+    return await this.usersService.findOne({ where: { username } });
   }
 
   @UseGuards(JwtGuard)
   @Get('/users/:username/wishes')
   async findOtherUserWishes(@Param('username') username: string) {
-    const user = await this.usersService.findByUsername(username);
+    const user = await this.usersService.findOne({ where: { username } });
     return user.wishlists;
   }
 

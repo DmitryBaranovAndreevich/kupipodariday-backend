@@ -9,6 +9,9 @@ import {
   UpdateDateColumn,
   OneToMany,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  ManyToMany,
 } from 'typeorm';
 
 @Entity()
@@ -52,23 +55,19 @@ export class Wish {
   raised: number;
 
   @Column()
-  @OneToOne(() => User, (user) => user.id)
-  owner: number;
-
-  @Column()
   @Length(1, 1024)
   description: string;
-
-  @Column({
-    type: 'int',
-    array: true,
-    default: [],
-  })
-  @OneToMany(() => Offer, (offer) => offer.id)
-  offers: number[];
 
   @Column({
     default: 0,
   })
   copied: number;
+
+  @ManyToMany(() => Offer, (offer) => offer.id)
+  @JoinColumn()
+  offers: Offer;
+
+  @ManyToOne(() => User, (user) => user.id)
+  @JoinColumn()
+  owner: User;
 }

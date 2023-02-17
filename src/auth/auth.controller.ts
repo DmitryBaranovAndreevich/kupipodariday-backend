@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { LocalGuard } from 'src/guard/local.quard';
 import { TSignInUser } from 'src/interface/user';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/entities/user.entity';
 import { AuthService } from './auth.service';
 
@@ -29,9 +28,7 @@ export class AuthController {
   @Post('signin')
   async login(@Req() req: Request) {
     const user = req.user;
-    // console.log(user)
     const token = await this.authService.login(user as User);
-    // console.log(token)
     return token;
   }
 }
