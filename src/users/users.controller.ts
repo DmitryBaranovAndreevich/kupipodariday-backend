@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -23,16 +22,6 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly wishesService: WishesService,
   ) {}
-
-  @UseGuards(JwtGuard)
-  @Post('/find')
-  async findUser(@Body() findUserDto: { query: string }) {
-    const user = await this.usersService.findOne({
-      where: [{ username: findUserDto.query }, { email: findUserDto.query }],
-    });
-    if (user) return [user];
-    return [];
-  }
 
   @UseGuards(JwtGuard)
   @Get('/me')
@@ -61,24 +50,40 @@ export class UsersController {
   @Get('/me/wishes')
   async findMeWishes(@Req() req: Request) {
     const user = req.user as User;
-    return await this.wishesService.getAllUserWishes(user);
+    const wishes = await this.wishesService.getAllUserWishes(user);
+    return wishes;
   }
 
   @UseGuards(JwtGuard)
-  @Get('/users/:username')
+  @Get('/:username')
   async findOtherUser(@Param('username') username: string) {
-    return await this.usersService.findOne({ where: { username } });
+    const { password, ...all } = await this.usersService.findOne({
+      where: { username },
+    });
+    return all;
   }
 
   @UseGuards(JwtGuard)
-  @Get('/users/:username/wishes')
+  @Get('/:username/wishes')
   async findOtherUserWishes(@Param('username') username: string) {
     const user = await this.usersService.findOne({ where: { username } });
-    return user.wishlists;
+    const wishes = await this.wishesService.getAllUserWishes(user);
+    return wishes;
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @UseGuards(JwtGuard)
+  @Post('/find')
+  async findUser(@Body() findUserDto: { query: string }) {
+    const users = await this.usersService
+      .findAll({
+        where: [{ username: findUserDto.query }, { email: findUserDto.query }],
+      })
+      .then((users) => {
+        return users.map((user) => {
+          const { password, ...all } = user;
+          return all;
+        });
+      });
+    return users;
   }
 }

@@ -1,16 +1,17 @@
 import { IsDate, IsFQDN, Length } from 'class-validator';
 import { Offer } from 'src/offers/entities/offer.entity';
 import { User } from 'src/users/entities/user.entity';
+import { Wishlist } from 'src/wishlists/entities/wishlist.entity';
 import {
   PrimaryGeneratedColumn,
   Column,
-  OneToOne,
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   ManyToMany,
 } from 'typeorm';
 
@@ -63,11 +64,14 @@ export class Wish {
   })
   copied: number;
 
-  @ManyToMany(() => Offer, (offer) => offer.id)
+  @OneToMany(() => Offer, (offer) => offer.item)
   @JoinColumn()
   offers: Offer;
 
-  @ManyToOne(() => User, (user) => user.id)
+  @OneToOne(() => User, (user) => user.wish)
   @JoinColumn()
   owner: User;
+
+  @ManyToOne(() => Wishlist, (Wishlist) => Wishlist.items)
+  wishlist: Wishlist;
 }

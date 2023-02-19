@@ -39,7 +39,7 @@ export class WishesController {
   @Get('/top')
   async findTop() {
     return await this.wishesService.findAll({
-      order: { createdAt: 'DESC' },
+      order: { copied: 'DESC' },
       take: 10,
     });
   }
@@ -47,7 +47,11 @@ export class WishesController {
   @UseGuards(JwtGuard)
   @Get(':id')
   async findWish(@Param('id') id: number) {
-    return await this.wishesService.findOne(+id);
+    const wish = await this.wishesService.findOne({
+      where: { id },
+      relations: ['owner', 'offers'],
+    });
+    return wish;
   }
 
   @UseGuards(JwtGuard)
@@ -59,8 +63,10 @@ export class WishesController {
   ) {
     const user = req.user as User;
     if (this.wishesService.isOwner(id, user)) {
-      return await this.wishesService.update(+id, updateWishDto);
+      await this.wishesService.update(+id, updateWishDto);
     }
+
+    return {};
   }
 
   @UseGuards(JwtGuard)
@@ -73,9 +79,12 @@ export class WishesController {
 
   @UseGuards(JwtGuard)
   @Post(':id/copy')
-  async copy(@Param('id') id: string, @Req() req: Request) {
+  async copy(@Param('id') id: number, @Req() req: Request) {
     const user = req.user as User;
-    const {id: Id, ...all} = await this.wishesService.findOne(+id);
-    return await this.wishesService.create(all, user);
+    const { id: Id, ...all } = await this.wishesService.findOne({
+      where: { id },
+    });
+    await this.wishesService.create({ ...all, copied: all.copied + 1 }, user);
+    return {};
   }
 }

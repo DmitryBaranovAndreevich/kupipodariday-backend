@@ -40,6 +40,6 @@ export class AuthService {
   }
 
   async getAllUsers() {
-    return this.usersService.findAll();
+    return this.usersService.findAll({});
   }
 }

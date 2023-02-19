@@ -14,7 +14,6 @@ import { Wishlist } from 'src/wishlists/entities/wishlist.entity';
 import { Offer } from 'src/offers/entities/offer.entity';
 import { Wish } from 'src/wishes/entities/wish.entity';
 
-
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -61,15 +60,14 @@ export class User {
   @Column()
   password: string;
 
-  @OneToMany(() => Wishlist, (wishlist) => wishlist.id)
+  @OneToMany(() => Wishlist, (wishlist) => wishlist.owner)
   @JoinColumn()
   wishlists: Wishlist;
 
-  @OneToOne(() => Offer, (offer) => offer.id)
-  @JoinColumn()
+  @OneToOne(() => Offer, (offer) => offer.user)
   offer: Offer;
 
-  @OneToMany(() => Wish, (wish) => wish.id)
+  @OneToOne(() => Wish, (wish) => wish.owner)
   @JoinColumn()
   wish: Wish;
 }
