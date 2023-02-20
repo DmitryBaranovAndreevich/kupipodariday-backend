@@ -7,13 +7,14 @@ import {
   Param,
   Req,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { UsersService } from './users.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { User } from './entities/user.entity';
 import { hash } from 'bcryptjs';
-import { UpdateUser } from 'src/interface/user';
+import { TUpdateUser } from 'src/interface/user';
 import { WishesService } from 'src/wishes/wishes.service';
 
 @Controller('users')
@@ -33,9 +34,12 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Patch('/me')
-  async updateUser(@Req() req: Request, @Body() updateUserDto: UpdateUser) {
+  async updateUser(@Req() req: Request, @Body() updateUserDto: TUpdateUser) {
     const res = { ...req.user } as User;
-    for (let key in updateUserDto) {
+    if ('id' in updateUserDto && updateUserDto?.id != res.id) {
+      throw new NotFoundException('Вы можете редакировать только свой профиль');
+    }
+    for (const key in updateUserDto) {
       if (key === 'password') {
         const secretPass = await hash(updateUserDto[key], 10);
         res[key] = secretPass;
@@ -43,7 +47,8 @@ export class UsersController {
         res[key] = updateUserDto[key];
       }
     }
-    return this.usersService.update(res.id, res);
+    await this.usersService.update(res.id, res);
+    return await this.usersService.findOne({ where: { id: res.id } });
   }
 
   @UseGuards(JwtGuard)

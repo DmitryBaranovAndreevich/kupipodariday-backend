@@ -1,5 +1,5 @@
 export interface IWishListDTO {
-  name: string,
-  image: string,
+  name: string;
+  image: string;
   itemsId: number[];
 }

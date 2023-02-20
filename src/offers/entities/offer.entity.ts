@@ -1,16 +1,14 @@
-import { IsDate, IsFQDN } from 'class-validator';
-import { User } from 'src/users/entities/user.entity';
+import { IsDate, IsNotEmpty, Length } from 'class-validator';
 import { Wish } from 'src/wishes/entities/wish.entity';
 import {
   PrimaryGeneratedColumn,
   Column,
-  OneToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToMany,
   Entity,
-  JoinColumn,
   ManyToOne,
+  JoinTable,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -28,7 +26,7 @@ export class Offer {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Wish, (wish) => wish.offers)
+  @ManyToOne(() => Wish, (wish) => wish.offers, { onDelete: 'CASCADE' })
   @JoinColumn()
   item: Wish;
 
@@ -45,8 +43,10 @@ export class Offer {
   hidden: boolean;
 
   @Column()
+  @IsNotEmpty()
   user: number;
 
   @Column()
+  @Length(2, 30)
   name: string;
 }

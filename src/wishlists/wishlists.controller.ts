@@ -10,8 +10,6 @@ import {
   Req,
 } from '@nestjs/common';
 import { WishlistsService } from './wishlists.service';
-import { CreateWishlistDto } from './dto/create-wishlist.dto';
-import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { Request } from 'express';
 import { User } from 'src/users/entities/user.entity';

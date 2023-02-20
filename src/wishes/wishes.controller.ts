@@ -8,21 +8,23 @@ import {
   Delete,
   UseGuards,
   Req,
+  NotImplementedException,
 } from '@nestjs/common';
 import { WishesService } from './wishes.service';
-import { CreateWishDto } from './dto/create-wish.dto';
-import { UpdateWishDto } from './dto/update-wish.dto';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { Request } from 'express';
 import { User } from 'src/users/entities/user.entity';
+import { TCreateWishDTO, TUpdateWish } from 'src/interface/wish';
+
 
 @Controller('wishes')
 export class WishesController {
-  constructor(private readonly wishesService: WishesService) {}
+  constructor(
+    private readonly wishesService: WishesService) {}
 
   @UseGuards(JwtGuard)
   @Post()
-  async create(@Req() req: Request, @Body() createWishDto: CreateWishDto) {
+  async create(@Req() req: Request, @Body() createWishDto: TCreateWishDTO) {
     const user = req.user as User;
     return await this.wishesService.create(createWishDto, user);
   }
@@ -57,34 +59,65 @@ export class WishesController {
   @UseGuards(JwtGuard)
   @Patch(':id')
   async update(
-    @Param('id') id: string,
-    @Body() updateWishDto: UpdateWishDto,
+    @Param('id') id: number,
+    @Body() updateWishDto: TUpdateWish,
     @Req() req: Request,
   ) {
     const user = req.user as User;
-    if (this.wishesService.isOwner(id, user)) {
-      await this.wishesService.update(+id, updateWishDto);
+    if (await this.wishesService.isOwner(id, user)) {
+      const { raised, copied, offers: upOffers, ...any } = updateWishDto;
+      let dto = any;
+      const { offers } = await this.wishesService.findOne({
+        where: { id },
+        relations: ['offers'],
+      });
+      if (offers.length != 0) {
+        const { price, ...all } = any;
+        dto = all;
+      }
+      await this.wishesService.update(+id, dto);
+      return {};
+    } else {
+      throw new NotImplementedException(
+        'Вы не являетесь владельцев данной вещи',
+      );
     }
-
-    return {};
   }
 
   @UseGuards(JwtGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string, @Req() req: Request) {
+  async remove(@Param('id') id: number, @Req() req: Request) {
     const user = req.user as User;
-    if (this.wishesService.isOwner(id, user))
-      return this.wishesService.remove(+id);
+    if (await this.wishesService.isOwner(id, user)) {
+      return await this.wishesService.remove(+id);
+    } else {
+      throw new NotImplementedException(
+        'Вы не являетесь владельцев данной вещи',
+      );
+    }
   }
 
   @UseGuards(JwtGuard)
   @Post(':id/copy')
   async copy(@Param('id') id: number, @Req() req: Request) {
     const user = req.user as User;
-    const { id: Id, ...all } = await this.wishesService.findOne({
+    const {
+      id: Id,
+      copied,
+      ...all
+    } = await this.wishesService.findOne({
       where: { id },
     });
-    await this.wishesService.create({ ...all, copied: all.copied + 1 }, user);
+    const { link, image, name, price, description } =
+      await this.wishesService.updateAndSave({
+        id: Id,
+        ...all,
+        copied: copied + 1,
+      });
+    await this.wishesService.create(
+      { link, image, name, price, description },
+      user,
+    );
     return {};
   }
 }

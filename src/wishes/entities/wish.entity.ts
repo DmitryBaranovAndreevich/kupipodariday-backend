@@ -11,8 +11,8 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 
 @Entity()
@@ -60,18 +60,23 @@ export class Wish {
   description: string;
 
   @Column({
+    type: 'int',
     default: 0,
   })
   copied: number;
 
-  @OneToMany(() => Offer, (offer) => offer.item)
+  @OneToMany(() => Offer, (offer) => offer.item, { onDelete: 'CASCADE' })
   @JoinColumn()
-  offers: Offer;
+  offers: Offer[];
 
-  @OneToOne(() => User, (user) => user.wish)
+  @ManyToOne(() => User, (user) => user.wish)
   @JoinColumn()
   owner: User;
 
-  @ManyToOne(() => Wishlist, (Wishlist) => Wishlist.items)
+  @ManyToMany(() => Wishlist, (Wishlist) => Wishlist.items, {
+    onDelete: 'CASCADE',
+  })
+  @JoinTable()
   wishlist: Wishlist;
 }
+

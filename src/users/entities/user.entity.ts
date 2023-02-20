@@ -9,7 +9,14 @@ import {
   ManyToMany,
   OneToMany,
 } from 'typeorm';
-import { Length, IsEmail, IsDate, IsFQDN } from 'class-validator';
+import {
+  Length,
+  IsEmail,
+  IsDate,
+  IsFQDN,
+  ValidateNested,
+  IsNotEmpty,
+} from 'class-validator';
 import { Wishlist } from 'src/wishlists/entities/wishlist.entity';
 import { Offer } from 'src/offers/entities/offer.entity';
 import { Wish } from 'src/wishes/entities/wish.entity';
@@ -55,9 +62,11 @@ export class User {
     unique: true,
   })
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @Column()
+  @IsNotEmpty()
   password: string;
 
   @OneToMany(() => Wishlist, (wishlist) => wishlist.owner)
@@ -67,7 +76,7 @@ export class User {
   @OneToOne(() => Offer, (offer) => offer.user)
   offer: Offer;
 
-  @OneToOne(() => Wish, (wish) => wish.owner)
+  @OneToMany(() => Wish, (wish) => wish.owner)
   @JoinColumn()
   wish: Wish;
 }

@@ -14,13 +14,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
       secretOrKey: configService.get<string>('JWT_SECRET'),
     });
   }
 
-  async validate(payload: {sub: number}) {
-    const user = await this.usersService.findOne({where: {id : payload.sub}});
+  async validate(payload: { sub: number }) {
+    const user = await this.usersService.findOne({
+      where: { id: payload.sub },
+    });
     if (!user) {
       throw new UnauthorizedException();
     }
@@ -35,7 +36,7 @@ export class LocalStrategy extends PassportStrategy(LocStrategy) {
   }
 
   async validate(username: string, password: string) {
-    const user =await this.authService.validateUser(username, password);
+    const user = await this.authService.validateUser(username, password);
     if (!user) {
       throw new UnauthorizedException();
     }

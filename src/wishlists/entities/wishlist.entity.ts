@@ -8,9 +8,9 @@ import {
   UpdateDateColumn,
   JoinColumn,
   Entity,
-  OneToMany,
   ManyToOne,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 
 @Entity()
@@ -28,18 +28,21 @@ export class Wishlist {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column()
+  @Column({
+    type: 'text',
+  })
   @Length(1, 250)
   name: string;
 
   @Column({
+    type: 'text',
     default: '',
   })
   @Length(1500)
   description: string;
 
-  @OneToMany(() => Wish, (wish) => wish.wishlist)
-  @JoinColumn()
+  @ManyToMany(() => Wish, (wish) => wish.wishlist, { onDelete: 'CASCADE' })
+  @JoinTable()
   items: Wish;
 
   @ManyToOne(() => User, (user) => user.wishlists)

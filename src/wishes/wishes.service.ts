@@ -13,6 +13,10 @@ export class WishesService {
     private wishRepository: Repository<Wish>,
   ) {}
 
+  async updateAndSave(options) {
+    return await this.wishRepository.save(options);
+  }
+
   async create(createWishDto: CreateWishDto, user: User) {
     const wish = await this.wishRepository.save({
       ...createWishDto,
@@ -44,8 +48,9 @@ export class WishesService {
     return this.wishRepository.delete({ id });
   }
 
-  async isOwner(wishId: string, user: User) {
+  async isOwner(wishId: number, user: User) {
     const userWishes = await this.getAllUserWishes(user);
-    return userWishes.some((el) => el.id === +wishId);
+    const res = userWishes.some((el) => el.id == wishId);
+    return res;
   }
 }

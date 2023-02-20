@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { LocalGuard } from 'src/guard/local.quard';
 import { TSignInUser } from 'src/interface/user';
@@ -16,12 +16,6 @@ export class AuthController {
       const token = await this.authService.login(user);
       return token;
     }
-  }
-
-  @Get('/signup/all')
-  async findAll() {
-    const users = await this.authService.getAllUsers();
-    return users;
   }
 
   @UseGuards(LocalGuard)
