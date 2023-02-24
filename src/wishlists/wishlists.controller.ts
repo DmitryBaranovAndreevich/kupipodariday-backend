@@ -13,9 +13,11 @@ import { WishlistsService } from './wishlists.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { Request } from 'express';
 import { User } from 'src/users/entities/user.entity';
-import { IWishListDTO } from 'src/interface/wishList';
 import { WishesService } from 'src/wishes/wishes.service';
-import { In } from 'typeorm';
+import { DeepPartial, In } from 'typeorm';
+import { CreateWishlistDto } from './dto/create-wishlist.dto';
+import { UpdateWishlistDto } from './dto/update-wishlist.dto';
+import { Wish } from 'src/wishes/entities/wish.entity';
 
 @Controller('wishlistlists')
 export class WishlistsController {
@@ -26,12 +28,15 @@ export class WishlistsController {
 
   @UseGuards(JwtGuard)
   @Post()
-  async create(@Req() req: Request, @Body() createWishlistDto: IWishListDTO) {
+  async create(
+    @Req() req: Request,
+    @Body() createWishlistDto: CreateWishlistDto,
+  ) {
     const user = req.user as User;
     const { itemsId, ...all } = createWishlistDto;
-    const items = await this.wishessService.findAll({
+    const items = (await this.wishessService.findAll({
       where: { id: In(itemsId) },
-    });
+    })) as DeepPartial<Wish>;
     const newWishList = await this.wishlistsService.create({
       ...all,
       items,
@@ -62,13 +67,9 @@ export class WishlistsController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateWishlistDto: IWishListDTO,
+    @Body() updateWishlistDto: UpdateWishlistDto,
   ) {
-    const { itemsId, ...all } = updateWishlistDto;
-    const items = await this.wishessService.findAll({
-      where: { id: In(itemsId) },
-    });
-    return this.wishlistsService.update(+id, { ...all, items });
+    return this.wishlistsService.update(+id, updateWishlistDto);
   }
 
   @UseGuards(JwtGuard)

@@ -17,6 +17,23 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
+  async findWithPass(username: string) {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where({ username })
+      .select([
+        'user.id',
+        'user.createdAt',
+        'user.updatedAt',
+        'user.username',
+        'user.about',
+        'user.avatar',
+        'user.email',
+        'user.password',
+      ])
+      .getOne();
+  }
+
   async findOne(options: FindOneOptions<User>) {
     return await this.usersRepository.findOne(options);
   }

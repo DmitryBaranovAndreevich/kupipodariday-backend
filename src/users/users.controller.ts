@@ -14,8 +14,8 @@ import { UsersService } from './users.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { User } from './entities/user.entity';
 import { hash } from 'bcryptjs';
-import { TUpdateUser } from 'src/interface/user';
 import { WishesService } from 'src/wishes/wishes.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -34,10 +34,12 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Patch('/me')
-  async updateUser(@Req() req: Request, @Body() updateUserDto: TUpdateUser) {
+  async updateUser(@Req() req: Request, @Body() updateUserDto: UpdateUserDto) {
     const res = { ...req.user } as User;
     if ('id' in updateUserDto && updateUserDto?.id != res.id) {
-      throw new NotFoundException('Вы можете редакировать только свой профиль');
+      throw new NotFoundException(
+        'Вы можете редактировать только свой профиль',
+      );
     }
     for (const key in updateUserDto) {
       if (key === 'password') {
@@ -48,7 +50,10 @@ export class UsersController {
       }
     }
     await this.usersService.update(res.id, res);
-    return await this.usersService.findOne({ where: { id: res.id } });
+    const user = await this.usersService.findOne({
+      where: { id: res.id },
+    });
+    return user;
   }
 
   @UseGuards(JwtGuard)
@@ -62,10 +67,10 @@ export class UsersController {
   @UseGuards(JwtGuard)
   @Get('/:username')
   async findOtherUser(@Param('username') username: string) {
-    const { password, ...all } = await this.usersService.findOne({
+    const user = await this.usersService.findOne({
       where: { username },
     });
-    return all;
+    return user;
   }
 
   @UseGuards(JwtGuard)
@@ -79,16 +84,9 @@ export class UsersController {
   @UseGuards(JwtGuard)
   @Post('/find')
   async findUser(@Body() findUserDto: { query: string }) {
-    const users = await this.usersService
-      .findAll({
-        where: [{ username: findUserDto.query }, { email: findUserDto.query }],
-      })
-      .then((users) => {
-        return users.map((user) => {
-          const { password, ...all } = user;
-          return all;
-        });
-      });
+    const users = await this.usersService.findAll({
+      where: [{ username: findUserDto.query }, { email: findUserDto.query }],
+    });
     return users;
   }
 }

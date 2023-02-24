@@ -36,12 +36,20 @@ export class Wishlist {
 
   @Column({
     type: 'text',
+  })
+  image: string;
+
+  @Column({
+    type: 'text',
     default: '',
   })
   @Length(1500)
   description: string;
 
-  @ManyToMany(() => Wish, (wish) => wish.wishlist, { onDelete: 'CASCADE' })
+  @ManyToMany(() => Wish, (wish) => wish.wishlist, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinTable()
   items: Wish;
 

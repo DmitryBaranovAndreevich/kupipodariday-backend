@@ -12,7 +12,6 @@ import {
   JoinColumn,
   ManyToOne,
   ManyToMany,
-  JoinTable,
 } from 'typeorm';
 
 @Entity()
@@ -73,10 +72,8 @@ export class Wish {
   @JoinColumn()
   owner: User;
 
-  @ManyToMany(() => Wishlist, (Wishlist) => Wishlist.items, {
+  @ManyToMany(() => Wishlist, (wishlist) => wishlist.items, {
     onDelete: 'CASCADE',
   })
-  @JoinTable()
   wishlist: Wishlist;
 }
-

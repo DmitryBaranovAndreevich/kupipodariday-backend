@@ -40,12 +40,21 @@ export class WishesService {
     return await this.wishRepository.findOne(options);
   }
 
-  async update(id: number, updateWishDto: UpdateWishDto) {
+  async update(id: number, updateWishDto: Partial<UpdateWishDto>) {
     return await this.wishRepository.update({ id }, updateWishDto);
   }
 
-  remove(id: number) {
-    return this.wishRepository.delete({ id });
+  async remove(id: number) {
+    const wish = JSON.parse(
+      JSON.stringify(
+        await this.findOne({
+          where: { id },
+          relations: ['owner', 'offers', 'offers.item'],
+        }),
+      ),
+    );
+    await this.wishRepository.delete({ id });
+    return wish;
   }
 
   async isOwner(wishId: number, user: User) {

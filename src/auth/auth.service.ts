@@ -23,11 +23,10 @@ export class AuthService {
   }
 
   async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOne({ where: { username } });
+    const user = await this.usersService.findWithPass(username);
     const matched = await compare(pass, user.password);
     if (matched) {
-      const { password, ...result } = user;
-      return result;
+      return user;
     }
     return null;
   }
@@ -37,6 +36,7 @@ export class AuthService {
     const token = {
       access_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
     };
+    console.log(token);
     return token;
   }
 

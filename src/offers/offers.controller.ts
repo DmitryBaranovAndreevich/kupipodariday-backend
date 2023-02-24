@@ -57,9 +57,10 @@ export class OffersController {
   @UseGuards(JwtGuard)
   @Get()
   async findAll() {
-    return this.offersService.findAll({
+    const offers = this.offersService.findAll({
       relations: ['item', 'item.offers', 'item.owner'],
     });
+    return offers;
   }
 
   @UseGuards(JwtGuard)

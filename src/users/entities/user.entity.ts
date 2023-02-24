@@ -6,17 +6,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
-  ManyToMany,
   OneToMany,
 } from 'typeorm';
-import {
-  Length,
-  IsEmail,
-  IsDate,
-  IsFQDN,
-  ValidateNested,
-  IsNotEmpty,
-} from 'class-validator';
+import { Length, IsEmail, IsDate, IsFQDN, IsNotEmpty } from 'class-validator';
 import { Wishlist } from 'src/wishlists/entities/wishlist.entity';
 import { Offer } from 'src/offers/entities/offer.entity';
 import { Wish } from 'src/wishes/entities/wish.entity';
@@ -65,7 +57,7 @@ export class User {
   @IsNotEmpty()
   email: string;
 
-  @Column()
+  @Column({ select: false })
   @IsNotEmpty()
   password: string;
 
